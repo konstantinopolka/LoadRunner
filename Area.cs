@@ -8,22 +8,39 @@ namespace Field_Sotnikov
 {
     class Area
     {
+        private int stepCount;
+        public int StepCount {
+            get { return stepCount; } 
+            set { 
+                if(value==stepCount+1) stepCount = value;
+            }
+        }
         public int points { get; set; }
-        private int maxStairs = 2;
-        private int maxGoldBars = 5;
-        private Cell[,] m_cells;
+        private int stairs = 2;
+        private int goldBars = 5;
+        private int maxStairs;
+        private int maxGoldBars;
+        private Cell[,] cells;
         public int AreaHeigth { get; private set; }
         public int AreaWidth { get; private set; }
         public int PlayerX { get; set; } //  сет должно быть приват
         public int PlayerY { get; set; } // сет должно быть приват
 
-        public Area(int AreaHeigth = 10, int AreaWidth = 10, int MaxStairs = 4, int MaxGoldBars = 5)
+        public Area(int AreaHeigth = 10, int AreaWidth = 10, int Stairs = 4, int GoldBars = 5)
         {
-            maxGoldBars = MaxGoldBars;
-            maxStairs = MaxStairs;
-            m_cells = new Cell[AreaHeigth, AreaWidth];
             this.AreaHeigth = AreaHeigth;
             this.AreaWidth = AreaWidth;
+            cells = new Cell[AreaHeigth, AreaWidth];
+           
+
+            maxStairs = (AreaWidth-2) * (AreaHeigth/2-1);
+            maxGoldBars= (AreaWidth - 2) * (AreaHeigth / 2);
+
+            if(GoldBars >maxGoldBars)  GoldBars= maxGoldBars;
+            goldBars = GoldBars;
+
+            if (stairs >maxStairs)  maxStairs = Stairs;
+            stairs = Stairs;
             FillArea();
         }
         public Area(int n = 10, int MaxStairs = 4, int MaxGoldBars = 5) : this(n, n, MaxStairs, MaxGoldBars)
@@ -31,23 +48,29 @@ namespace Field_Sotnikov
         }
         public Area()
         {
-            int AreaHeigth = 10;
-            int AreaWidth = 10;
-            int MaxStairs = 4;
-            int MaxGoldBars = 5;
-            maxGoldBars = MaxGoldBars;
-            maxStairs = MaxStairs;
-            m_cells = new Cell[AreaHeigth, AreaWidth];
-            this.AreaHeigth = AreaHeigth;
-            this.AreaWidth = AreaWidth;
+            AreaHeigth = 10;
+            AreaWidth = 10;
+            maxStairs = (AreaWidth - 2) * (AreaHeigth / 2 - 1);
+            maxGoldBars = (AreaWidth - 2) * (AreaHeigth / 2);
+            goldBars = maxGoldBars/4;
+            stairs = maxStairs/4;
+            cells = new Cell[AreaHeigth, AreaWidth];
             FillArea();
         }
         public void ShowArea()
         {
-            for (int i = 0; i < m_cells.GetLength(0); i++)
+            Console.WriteLine("w -\t подняться по лестнице вверх на ряд вверх\n" +
+                            "s -\t опуститься по лестнице вниз на ряд ниже\n" +
+                            "d -\t пройти вправо на одну клетку\n" +
+                            "a -\t пройти влево на одну клетку\n" +
+                            "z -\t выкопать яму слева\n" +
+                            "d - \t выкопать яму справа\n" +
+                            "Не копать яму на дне!!! иначе GAME OVER\n\n"); 
+            for (int i = 0; i < cells.GetLength(0); i++)
             {
-                for (int j = 0; j < m_cells.GetLength(1); j++) Console.Write(m_cells[i, j].CellName);
-                if (i == 0) Console.Write("\t\tPoints:\t" + points);
+                for (int j = 0; j < cells.GetLength(1); j++) Console.Write(cells[i, j].CellName);
+                if (i == 0) Console.Write("\t\tPoints:\t\t" + points);
+                if (i == 1) Console.Write("\t\tStep count:\t" + stepCount);
                 Console.WriteLine("");
 
             }
@@ -56,37 +79,39 @@ namespace Field_Sotnikov
         private void FillArea()
         {
             Random rnd = new Random();
-            int[] ArrayForPlayer = new int[m_cells.GetLength(0) / 2];
+            int[] ArrayForPlayer = new int[cells.GetLength(0) / 2];
 
             if (AreaHeigth % 2 == 0)
             {
-                for (int i = 0; i < m_cells.GetLength(0); i++)
-                    for (int j = 0; j < m_cells.GetLength(1); j++)
-                        m_cells[i, j] = new Empty(i, j);
+                for (int i = 0; i < cells.GetLength(0); i++)
+                    for (int j = 0; j < cells.GetLength(1); j++)
+                        cells[i, j] = new Empty(i, j);
 
                 for (int i = 0; i < ArrayForPlayer.Length; i++) ArrayForPlayer[i] = i * 2;
                 int RndIntForCells;
-                for (int i = 0; i < m_cells.GetLength(0); i++)
+                for (int i = 0; i < cells.GetLength(0); i++)
                 {
-                    for (int j = 0; j < m_cells.GetLength(1); j++)
+                    for (int j = 0; j < cells.GetLength(1); j++)
                     {
-                        if (Player.Count < 1)
+                        if (Player.Count == 0)
                         {
-                            RndIntForCells = rnd.Next(1, m_cells.GetLength(1) - 1);
-                            m_cells[/*ArrayForPlayer[rnd.Next(0, ArrayForPlayer.Length)]*/0, RndIntForCells] = new Player(0, RndIntForCells);
+                            RndIntForCells = rnd.Next(1, cells.GetLength(1) - 1);
+                            cells[/*ArrayForPlayer[rnd.Next(0, ArrayForPlayer.Length)]*/0, RndIntForCells] = new Player(0, RndIntForCells);
                             PlayerY = 0;
                             PlayerX = RndIntForCells;
                         }
-                        if (j == 0 || j == m_cells.GetLength(1) - 1 || i % 2 == 1) m_cells[i, j] = new Wall(i, j);
+                        if (j == 0 || j == cells.GetLength(1) - 1 || i % 2 == 1) cells[i, j] = new Wall(i, j);
                     }
                 }
-                for (int i = 0, j; i < m_cells.GetLength(0); i++)
+                while (GoldBar.Count < goldBars || Stair.Count < stairs)
                 {
-                    j = rnd.Next(1, m_cells.GetLength(1) - 1);
-                    if (m_cells[i, j] as Stair == null && Stair.Count < maxStairs && i % 2 == 1) m_cells[i, j] = new Stair(i, j);
-                    j = rnd.Next(1, m_cells.GetLength(1) - 1);
-                    if (m_cells[i, j] as Player == null && m_cells[i, j] as GoldBar == null && GoldBar.Count <= maxGoldBars && i % 2 == 0) m_cells[i, j] = new GoldBar(i, j);
-
+                    for (int i = 0, j; i < cells.GetLength(0)-1; i++)
+                    {
+                        j = rnd.Next(1, cells.GetLength(1) - 1);
+                        if (cells[i, j] as Stair == null && Stair.Count < stairs && i % 2 == 1 && Stair.Count < stairs && Stair.Count<maxStairs) cells[i, j] = new Stair(i, j);
+                        j = rnd.Next(1, cells.GetLength(1) - 1);
+                        if (cells[i, j] as Player == null && cells[i, j] as GoldBar == null && GoldBar.Count <= goldBars && i % 2 == 0 && GoldBar.Count < goldBars && GoldBar.Count < maxGoldBars) cells[i, j] = new GoldBar(i, j);
+                    }
                 }
             }
         }
@@ -94,15 +119,19 @@ namespace Field_Sotnikov
         {
             get
             {
-                if (x >= 0 && y >= 0) return m_cells[y, x];
-                else
+                if (x >= 0 && x<cells.GetLength(1) && y >= 0 && y<cells.GetLength(0))  return cells[y, x];
+                else 
                 {
                     Console.WriteLine("Пожалуйста, введите корректные координаты\n\n");  // переделать под исключение потом
                     return null;
                 }
 
             }
-            set { m_cells[y, x] = value; }  // поставить исключение на подачу ссылки другого класса
+            set {
+
+                if (x >= 0 && x < cells.GetLength(1) && y >= 0 && y < cells.GetLength(0)) cells[y, x] = value;
+            
+            }  // поставить исключение на подачу ссылки другого класса
         }
     }
 }
