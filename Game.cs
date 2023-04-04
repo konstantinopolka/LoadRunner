@@ -82,6 +82,7 @@ namespace Field_Sotnikov
                     }
                     while (area[area.PlayerY + 1, area.PlayerX] is Empty && area.PlayerY + 1 != area.AreaHeigth) area.PlayerY++;
                     area[area.PlayerY, area.PlayerX] = new Player(area.PlayerY, area.PlayerX);
+
                     if (isThereThePit
                         && isLastActionAble
                         ) {
