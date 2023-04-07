@@ -121,7 +121,7 @@ namespace Field_Sotnikov
                 Console.Clear();
             }
         }
-        private bool IsMoveAble(string action, int y, int x)
+        private bool IsMoveAble(string Action, int y, int x)
         {
             if (area[y, x] is Wall)
             {
@@ -131,11 +131,11 @@ namespace Field_Sotnikov
             }
             else if (area[y, x] is Stair)
             {
-                if (action == "w")
+                if (Action == "w")
                 {
                     IsNextCellGoldBar(y - 1, x);
                 }
-                if (action == "s")
+                if (Action == "s")
                 {
                     IsNextCellGoldBar(y + 1, x);
                 }
@@ -156,7 +156,7 @@ namespace Field_Sotnikov
                 isLastActionAble = false; return false;
             }
         }
-        private bool IsPitAble(string action, int y, int x)
+        private bool IsPitAble(string Action, int y, int x)
         {
             if (x == 0 || x == area.AreaWidth - 1) { isLastActionAble = false; return false;  }
             else if (area[y, x] is Stair) { isLastActionAble = false; return false; }
@@ -168,7 +168,7 @@ namespace Field_Sotnikov
         }
         private void IsNextCellGoldBar(int y, int x)
         {
-            if (area[y, x] is GoldBar) { Console.WriteLine("Скушал золото!!!"); area.points++; }
+            if (area[y, x] is GoldBar) { Console.WriteLine("Скушал золото!!!"); area.Points++; }
         }
     }
 }

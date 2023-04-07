@@ -13,8 +13,8 @@ namespace Field_Sotnikov
     {
         static void Main(string[] args)
         {
-            Game game = new Game(8,5,2);
-            game.Run();
+            Game Game = new Game(8,5,2);
+            Game.Run();
         }
     }
 }
