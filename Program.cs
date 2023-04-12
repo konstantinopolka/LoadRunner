@@ -6,6 +6,7 @@ using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Diagnostics;
 
 namespace Field_Sotnikov
 {
@@ -13,8 +14,8 @@ namespace Field_Sotnikov
     {
         static void Main(string[] args)
         {
-            Game Game = new Game(8,5,2);
-            Game.Run();
+            Game Game = new Game(10,5,4);
+            Game.Run(); 
         }
     }
 }

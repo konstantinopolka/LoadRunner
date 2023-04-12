@@ -8,7 +8,7 @@ namespace Field_Sotnikov
 {
     abstract class Cell
     {
-        public char CellName { get; set; }
+        public char CellName { get; protected set;   }
         public int X { get; set; }
         public int Y { get; set; }
         public Cell(int y, int x)

@@ -17,7 +17,7 @@ namespace Field_Sotnikov
         }
         public int Points { get; set; }
         private int userStairs; // столько, сколько хочет пользователь лестниц
-        private int userGoldBars; // столько, сколько хочет пользователь золотых слитков
+        public int userGoldBars { get; } // столько, сколько хочет пользователь золотых слитков
         private int maxStairs; // сколько всего физически может быть на карте лестниц 
         private int maxGoldBars; // сколько всего физически может быть на карте золотых слитков
         private bool isPlayerThere=false;
@@ -57,25 +57,6 @@ namespace Field_Sotnikov
             userStairs = maxStairs/4;
             cells = new Cell[AreaHeigth, AreaWidth];
             FillArea();
-        }
-        public void ShowArea()
-        {
-            Console.WriteLine("w -\t подняться по лестнице вверх на ряд вверх\n" +
-                            "s -\t опуститься по лестнице вниз на ряд ниже\n" +
-                            "d -\t пройти вправо на одну клетку\n" +
-                            "a -\t пройти влево на одну клетку\n" +
-                            "z -\t выкопать яму слева\n" +
-                            "d - \t выкопать яму справа\n" +
-                            "Не копать яму на дне!!! иначе GAME OVER\n\n"); 
-            for (int i = 0; i < cells.GetLength(0); i++)
-            {
-                for (int j = 0; j < cells.GetLength(1); j++) Console.Write(cells[i, j].CellName);
-                if (i == 0) Console.Write("\t\tPoints:\t\t" + Points);
-                if (i == 1) Console.Write("\t\tStep count:\t" + stepCount);
-                Console.WriteLine("");
-
-            }
-            Console.WriteLine("\n");
         }
         private void FillArea()
         {
