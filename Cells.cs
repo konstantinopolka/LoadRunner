@@ -52,10 +52,17 @@ namespace Field_Sotnikov
     }
     class Arrow : Cell
     {
-        public Arrow(int x, int y) : base(x, y)
+        public Arrow(int x, int y) : base(y, x)
         {
             CellName = ' ';
         }
 
+    }
+    class Teleport : Cell
+    {
+        public Teleport(int y,int x) : base(y, x)
+        {
+            CellName = '0';
+        }
     }
 }
