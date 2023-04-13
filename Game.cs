@@ -129,7 +129,7 @@ namespace Field_Sotnikov
         }
         public void Run()
         {
-            //openGameOutput();
+           xophenGameOutput();s
             while (true)
             {
                 showArea();
