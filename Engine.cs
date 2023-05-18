@@ -9,30 +9,29 @@ using System.Reflection;
 
 namespace Field_Sotnikov
 {
-    class Game
+    class Engine
     {
         private Area area;
         private bool isThereThePit;
         private Cell lastPit;
         private bool isLastActionAble = false;
-        private Cell lastMove;
         private Stopwatch stopwatch;
         private int points;
         private int teleports;
         private string lastActionComment = "Тут будет коммент твоего последнего шага";
         private char actionChar { get; set; }
         private ConsoleKeyInfo action;
-        public Game(int AreaHeigth = 10, int AreaWidth = 10, int MaxStairs = 4, int MaxGoldBars = 5)
+        public Engine(int AreaHeigth = 10, int AreaWidth = 10, int MaxStairs = 4, int MaxGoldBars = 5)
         {
             stopwatch = new Stopwatch();
             area = new Area(AreaHeigth, AreaWidth, MaxStairs, MaxGoldBars,1);
         }
-        public Game(int n = 10, int MaxStairs = 4, int MaxGoldBars = 5)
+        public Engine(int n = 10, int MaxStairs = 4, int MaxGoldBars = 5)
         {
             stopwatch = new Stopwatch();
             area = new Area(n, n, MaxStairs, MaxGoldBars,1);
         }
-        public Game()
+        public Engine()
         {
             stopwatch = new Stopwatch();
             int AreaHeigth = 10;
@@ -41,7 +40,7 @@ namespace Field_Sotnikov
             int MaxGoldBars = 5;
             area = new Area(AreaHeigth, AreaWidth, MaxStairs, MaxGoldBars);
         }
-        public Game(int n)
+        public Engine(int n)
         {
             stopwatch = new Stopwatch();
             area = new Area(n, n, n, n);
@@ -79,10 +78,10 @@ namespace Field_Sotnikov
             Console.WriteLine("*        *        *    *           *    *          *       *        *    *        * *  *      *  *  *      *  *  *            *        *   ");
             Console.WriteLine("*        *        *   *             *   *         *        *         *   *       *  *  *       * *  *       * *  *            *         *  ");
             Console.WriteLine("*******   ********    *             *   **********         *          *   *******   *  *         *  *         *  ***********  *          * ");
-            Thread.Sleep(2000);
+            Thread.Sleep(5000);
             Console.Clear() ;
         }
-        private void showArea()
+        private void showGame()
         {
             Console.WriteLine("w -\t подняться по лестнице вверх на ряд вверх\n" +
                             "s -\t опуститься по лестнице вниз на ряд ниже\n" +
@@ -93,7 +92,7 @@ namespace Field_Sotnikov
                             "Не копать яму на дне!!! иначе GAME OVER\n" +
                             "Для паузы нажмите Esc\n" +
                             "\n\n"+
-                            lastActionComment + 
+                            lastActionComment +
                             "\n\n");
             for (int i = 0; i < area.AreaHeigth; i++)
             {
@@ -127,29 +126,68 @@ namespace Field_Sotnikov
             lastActionComment = "Телепортнулся";
             teleports--;
         }
-        public void Run()
+        public void Playing()
         {
-           xophenGameOutput();s
+           //openGameOutput();
             while (true)
             {
-                showArea();
+                showGame();
                 action = Console.ReadKey(true);
                 if (action.Key == ConsoleKey.Escape) pause();
                 actionChar = action.KeyChar;
                 Console.WriteLine("\n");
 
                 stopwatch.Start();
-                if (actionChar == 'w' || actionChar == 'a' || actionChar == 'd' || actionChar == 's' || actionChar==' ' )
+                if (actionChar == 'w' || actionChar == 'a' || actionChar == 'd' || actionChar == 's' || actionChar == ' ')
                 {
-                    if (actionChar == 'w' && isMoveAble(actionChar, area.PlayerY - 1, area.PlayerX)) area.PlayerY -= 2;
-                    if (actionChar == 'd' && isMoveAble(actionChar, area.PlayerY, area.PlayerX + 1)) area.PlayerX++;
-                    if (actionChar == 'a' && isMoveAble(actionChar, area.PlayerY, area.PlayerX - 1)) area.PlayerX--;
-                    if (actionChar == 's' && isMoveAble(actionChar, area.PlayerY + 1, area.PlayerX)) area.PlayerY += 2;
+                    bool isMoveAbleAns=false;
+                    if (actionChar == 'w')
+                    {
+                        isMoveAbleAns = isMoveAble(actionChar, area.PlayerY - 1, area.PlayerX);
+                        if (isMoveAbleAns)
+                        {
+                            
+                            area.PlayerY -= 2;
+                        }
+                    }
+
+                        
+                    if (actionChar == 'd')
+                    {
+                        isMoveAbleAns = isMoveAble(actionChar, area.PlayerY, area.PlayerX + 1);
+                        if (isMoveAbleAns)
+                        {
+                            
+                            area.PlayerX++;
+                        }
+                    }
+                        
+                    if (actionChar == 'a')
+                    {
+                        isMoveAbleAns = isMoveAble(actionChar, area.PlayerY, area.PlayerX - 1);
+                        if (isMoveAbleAns)
+                        {
+                            
+                            area.PlayerX--;
+                        }
+                    }
+                        
+                    if (actionChar == 's')
+                    {
+                        isMoveAbleAns = isMoveAble(actionChar, area.PlayerY + 1, area.PlayerX);
+                        if (isMoveAbleAns)
+                        {
+                           
+                            area.PlayerY += 2;
+                        }
+                    }
                     if (actionChar == ' ')
                     {
                         if (teleports > 0) teleport();
                         else lastActionComment = "У тебя нет телепортов";
                     }
+
+
 
                     while ((area[area.PlayerY + 1, area.PlayerX] is Empty || area[area.PlayerY + 1, area.PlayerX] is GoldBar) &&
                             area.PlayerY + 1 != area.AreaHeigth)
@@ -166,9 +204,9 @@ namespace Field_Sotnikov
                            
                     }
                 }
-               
-                   
-                 if (actionChar == 'z' && isPitAble(actionChar, area.PlayerY + 1, area.PlayerX - 1)) area[area.PlayerY + 1, area.PlayerX - 1] = new Empty(area.PlayerY + 1, area.PlayerX - 1);     
+
+                
+                if (actionChar == 'z' && isPitAble(actionChar, area.PlayerY + 1, area.PlayerX - 1)) area[area.PlayerY + 1, area.PlayerX - 1] = new Empty(area.PlayerY + 1, area.PlayerX - 1);     
                  if (actionChar == 'x' && isPitAble(actionChar, area.PlayerY + 1, area.PlayerX + 1)) area[area.PlayerY + 1, area.PlayerX + 1] = new Empty(area.PlayerY + 1, area.PlayerX + 1);
                
                 Console.Clear();
@@ -179,16 +217,18 @@ namespace Field_Sotnikov
         private bool isMoveAble(char Action, int y, int x)
         {
             bool ans=true;
-            if (area[y, x] is Wall) { ans = false; lastActionComment = "Стена!!! Куда прешь??!!"; }
-            else if (area[y, x] is Stair)
+            if (!area[y, x].IsThrough) { ans = false; lastActionComment = "Непроходимый объект!!! Куда прешь??!!"; }
+            else
             {
-                if (Action == 'w') isNextCellGoldBarOrTeleport(y - 1, x);
-                if (Action == 's') isNextCellGoldBarOrTeleport(y + 1, x);
-                lastActionComment = "Перешел по лестнице";
+                if (area[y, x] is Stair)
+                {
+                    if (Action == 'w') isNextCellGoldBarOrTeleport(y - 1, x);
+                    if (Action == 's') isNextCellGoldBarOrTeleport(y + 1, x);
+                    lastActionComment = "Перешел по лестнице";
+                }
+                else if (area[y, x] is Empty || area[y, x] is GoldBar || area[y, x] is Teleport) { lastActionComment = "Просто прошелся"; isNextCellGoldBarOrTeleport(y, x); }
+                else ans = false;   
             }
-            else if (area[y, x] is Empty || area[y, x] is GoldBar || area[y, x] is Teleport) { lastActionComment = "Просто прошелся"; isNextCellGoldBarOrTeleport(y, x);  }
-            else ans = false;
-           
             if (ans)
             {
                 area[area.PlayerY, area.PlayerX] = new Empty(area.PlayerY, area.PlayerX);
@@ -215,6 +255,5 @@ namespace Field_Sotnikov
             if (area[y, x] is GoldBar) { points++; lastActionComment += " и скушал золото!"; }
             if (area[y, x] is Teleport) { teleports++; lastActionComment += " и скушал телепорт!"; }
         }
-        
     }
 }
