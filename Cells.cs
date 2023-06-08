@@ -12,7 +12,9 @@ namespace Field_Sotnikov
         public int X { get; set; }
         public int Y { get; set; }
         public abstract bool IsThrough { get; }
-        public virtual int PointsForCell { get {  return 0; } }
+        public virtual int PointsForCell { 
+            get => 0;
+        }
         public virtual object Clone()
         {
             return MemberwiseClone();
@@ -26,7 +28,9 @@ namespace Field_Sotnikov
     }
     class Player : Cell, ICloneable
     {
-        public Player(int y, int x) : base(y, x) { CellName = 'I'; }
+        public Player(int y, int x) : base(y, x) { 
+            CellName = 'I'; 
+        }
         public override bool IsThrough => true;
         public override object Clone()
         {
@@ -73,7 +77,9 @@ namespace Field_Sotnikov
     }
     class GoldBar : Cell, ICloneable
     {
-        public GoldBar(int y = 0, int x = 0) : base(y, x) { CellName = '@'; }
+        public GoldBar(int y = 0, int x = 0) : base(y, x) { 
+            CellName = '@'; 
+        }
         public override bool IsThrough => true;
         public override int PointsForCell => 1;
         public object Clone()
