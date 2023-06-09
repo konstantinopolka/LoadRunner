@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Field_Sotnikov
 {
@@ -15,10 +11,9 @@ namespace Field_Sotnikov
         public virtual int PointsForCell { 
             get => 0;
         }
-        public virtual object Clone()
-        {
-            return MemberwiseClone();
-        }
+        public abstract object Clone();
+        
+        public abstract string LastCellComment { get; }
         public Cell(int y=0, int x = 0)
         {
             CellName = ' ';
@@ -26,90 +21,98 @@ namespace Field_Sotnikov
             Y = y;
         }
     }
-    class Player : Cell, ICloneable
+
+    abstract class Passable : Cell, ICloneable
     {
-        public Player(int y, int x) : base(y, x) { 
-            CellName = 'I'; 
-        }
         public override bool IsThrough => true;
-        public override object Clone()
+        public Passable(int y = 0, int x = 0)
         {
-            return MemberwiseClone();
+            CellName = ' ';
+            X = x;
+            Y = y;
         }
     }
-    class Empty : Cell, ICloneable
+    
+    abstract class Unpassable : Cell, ICloneable
+    {
+        public override bool IsThrough => false;
+        public Unpassable(int y = 0, int x = 0)
+        {
+            CellName = ' ';
+            X = x;
+            Y = y;
+        }
+    }
+    class Player : Passable, ICloneable
+    {
+        public Player(int y=0, int x = 0) : base(x,y) { 
+            CellName = 'I'; 
+        }
+       
+        
+        public override object Clone() => MemberwiseClone();
+
+        public override string LastCellComment => "";
+
+    }
+    class Empty : Passable, ICloneable
     {
         public Empty(int y = 0, int x = 0) : base(y, x)
         {
             
         }
-        public override object Clone()
-        {
-            return MemberwiseClone();
-        }
+        public override object Clone() => MemberwiseClone();
 
-        public override bool IsThrough => true;
+       
+        public override string LastCellComment => "Просто пройшовся\n";
+
     }
-    class Wall : Cell, ICloneable
+    class Wall : Unpassable, ICloneable
     {
         public Wall(int y = 0, int x = 0) : base(y, x)
         {
-           
             CellName = '#';
         }
-        public override object Clone()
-        {
-            return MemberwiseClone();
-        }
-        public override bool IsThrough => false;
+        public override object Clone() => MemberwiseClone();
+        public override string LastCellComment => "Стіна!\n";
     }
-    class Stair : Cell, ICloneable
+    class Stair : Passable, ICloneable
     {
         public Stair(int y = 0, int x = 0) : base(y, x)
         {
             CellName = '|';
         }
-        public override object Clone()
-        {
-            return MemberwiseClone();
-        }
-        public override bool IsThrough => true;
+        public override object Clone() => MemberwiseClone();
+       
+        public override string LastCellComment => "Перейшов по драбині\n";
     }
-    class GoldBar : Cell, ICloneable
+    class GoldBar : Passable, ICloneable
     {
         public GoldBar(int y = 0, int x = 0) : base(y, x) { 
             CellName = '@'; 
         }
-        public override bool IsThrough => true;
         public override int PointsForCell => 1;
-        public object Clone()
-        {
-            return MemberwiseClone();
-        }
+        public override object Clone() => MemberwiseClone();
+        public override string LastCellComment => "Зібрав золотий зливок\n";
     }
-    class Arrow : Cell, ICloneable
+    class Arrow : Passable, ICloneable
     {
         public Arrow(int x = 0, int y = 0) : base(y, x)
         {
             CellName = ' ';
         }
-        public override bool IsThrough => true;
-        public override object Clone()
-        {
-            return MemberwiseClone();
-        }
+
+        public override object Clone() => MemberwiseClone();
+        public override string LastCellComment => " ";
 
     }
-    class Teleport : Cell, ICloneable
+    class Teleport : Passable, ICloneable
     {
         public Teleport(int y = 0,int x = 0) : base(y, x)
         {
             CellName = '0';
         }
-        public override bool IsThrough => true;
-        public override object Clone()
-        {
-            return MemberwiseClone();
-        }   
+        public override object Clone() => MemberwiseClone();
+        public override string LastCellComment => "Зібрав телепорт\n";
     }
 }

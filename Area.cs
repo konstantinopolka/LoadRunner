@@ -1,27 +1,27 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Field_Sotnikov
 {
+
     class Area
     {
+        public delegate void A(); 
         private int stepCount;
         public int StepCount {
-            get { return stepCount; } 
+            get => stepCount;
             set { 
-                if(value==stepCount+1) stepCount = value;
+                if(value==stepCount+1)
+                    stepCount = value;
             }
         }
         private int userStairs; // столько, сколько хочет пользователь лестниц
         private int userTeleports;
         public int UserTeleports {
-            get { return userTeleports; }
-            set { if (value == userTeleports - 1) userTeleports = value; }
+            get => userTeleports;
+            set { 
+                if (value == userTeleports - 1)
+                    userTeleports = value;
+             }
         }
         public int UserGoldBars { get; } // столько, сколько хочет пользователь золотых слитков
         private int maxStairs; // сколько всего физически может быть на карте лестниц 
@@ -31,21 +31,20 @@ namespace Field_Sotnikov
         public Cell[,] cells;
 
         private Random randomForFillArea = new Random();
-        private int[] ArrayForNoEmpty;
 
-        public int AreaHeigth { get; private set; }
+        public int AreaHeight { get; private set; }
         public int AreaWidth { get; private set; }
         public int PlayerX { get; set; } //  сет должно быть приват
         public int PlayerY { get; set; } // сет должно быть приват
 
-        public Area(int AreaHeigth = 10, int AreaWidth = 10, int Stairs = 4, int GoldBars = 5, int Teleports=1)
+        public Area(int AreaHeight = 10, int AreaWidth = 10, int Stairs = 4, int GoldBars = 5, int Teleports=1)
         {
-            this.AreaHeigth = AreaHeigth;
+            this.AreaHeight = AreaHeight;
             this.AreaWidth = AreaWidth;
-            cells = new Cell[AreaHeigth, AreaWidth];
+            cells = new Cell[AreaHeight, AreaWidth];
  
-            maxStairs = (AreaWidth-2) * (AreaHeigth/2-1);
-            maxGoldBars= (AreaWidth - 2) * (AreaHeigth / 2);
+            maxStairs = (AreaWidth-2) * (AreaHeight/2-1);
+            maxGoldBars= (AreaWidth - 2) * (AreaHeight / 2);
 
             if(GoldBars >maxGoldBars)  GoldBars= maxGoldBars;
             UserGoldBars = GoldBars;
@@ -56,7 +55,6 @@ namespace Field_Sotnikov
             if (Teleports > maxTeleports) Teleports = maxTeleports;
             userTeleports = Teleports;
 
-            ArrayForNoEmpty = new int[cells.GetLength(0) / 2]; for (int i = 0; i < ArrayForNoEmpty.Length; i++) ArrayForNoEmpty[i] = i * 2;
 
             fillArea();
            
@@ -66,32 +64,26 @@ namespace Field_Sotnikov
         }
         public Area()
         {
-            AreaHeigth = 10;
+            AreaHeight = 10;
             AreaWidth = 10;
-            maxStairs = (AreaWidth - 2) * (AreaHeigth / 2 - 1);
-            maxGoldBars = (AreaWidth - 2) * (AreaHeigth / 2);
+            maxStairs = (AreaWidth - 2) * (AreaHeight / 2 - 1);
+            maxGoldBars = (AreaWidth - 2) * (AreaHeight / 2);
             UserGoldBars = maxGoldBars/4;
             userStairs = maxStairs/4;
-            cells = new Cell[AreaHeigth, AreaWidth];
+            cells = new Cell[AreaHeight, AreaWidth];
             userTeleports = 1;
-
-            ArrayForNoEmpty= new int[cells.GetLength(0) / 2]; for (int i = 0; i < ArrayForNoEmpty.Length; i++) ArrayForNoEmpty[i] = i * 2;
-
             fillArea();
         }
         private void fillArea()
         {
-            if (AreaHeigth % 2 == 0)
-            {
-                fillAreaEmptys();
-                fillAreaWalls();
-                fillAreaPlayer();
-                fillAreaStairs();
-                fillAreaGoldBars();
-                fillAreaTeleports();
-            }
+            fillAreaEmptys();
+            fillAreaWalls();
+            fillAreaStairs();
+            fillAreaPlayer();
+            fillAreaGoldBars();
+            fillAreaTeleports();
         }
-
+        
         private void fillAreaEmptys()
         {
             for (int i = 0; i < cells.GetLength(0); i++)
@@ -99,22 +91,29 @@ namespace Field_Sotnikov
                    this[i, j] = new Empty(i, j);
             
         }
+
         private void fillAreaWalls()
         {
-            for(int i=1; i < cells.GetLength(0);i+=2)
+            int highestWall;
+            if (AreaHeight % 2 == 0) highestWall = 1;
+            else highestWall = 0;
+
+            for(int i = highestWall; i < cells.GetLength(0);i+=2)
                 for(int j=0; j < cells.GetLength(1);j++)
                     cells[i, j]= new Wall(i, j);
-            for (int j = 0; j < cells.GetLength(1); j += cells.GetLength(1) - 1)
-                for (int i = 0; i < cells.GetLength(0); i++)
-                    this[i, j] = new Wall(i, j);
-        }
 
+            for (int i = 0; i < cells.GetLength(0); i++)
+            {
+                this[i, 0] = new Wall(i, 0);
+                this[i, cells.GetLength(1) - 1] = new Wall(i, cells.GetLength(1) - 1);
+            }
+        }
         private void fillAreaPlayer()
         {
             while (!isPlayerThere)
             {
-                PlayerY = randomForFillArea.Next(ArrayForNoEmpty[randomForFillArea.Next(0, ArrayForNoEmpty.Length)]);
-                PlayerX = randomForFillArea.Next(0, cells.GetLength(1) - 2);
+                PlayerY = randomForFillArea.Next(0, cells.GetLength(0) - 2);
+                PlayerX = randomForFillArea.Next(1, cells.GetLength(1) - 2);
                 if (this[PlayerY, PlayerX] is Empty) {
                     this[PlayerY, PlayerX] = new Player(PlayerY, PlayerX);
                     isPlayerThere = true;
@@ -125,23 +124,21 @@ namespace Field_Sotnikov
 
         private void fillAreaStairs()
         {
-            int[] ArrayForStairs = new int[cells.GetLength(0) / 2-1];
-            ArrayForStairs[0] = 1;
-            for (int i = 1; i < ArrayForStairs.Length; i++) ArrayForStairs[i] = ArrayForStairs[i-1]+2;
             int stairX;
             int stairY;
             int stairFactCount = 0;
 
-            for (int i = 0; i < ArrayForStairs.Length; i++)
+            for (int i = 1; i < cells.GetLength(0)-1; i++)
             {
                 stairX = randomForFillArea.Next(1, cells.GetLength(1) - 1);
-                stairY = ArrayForStairs[i];
-                makeStair(ref stairFactCount, stairX, stairY);
+                stairY = i;
+                if (this[stairY, stairX] is Wall)
+                    makeStair(ref stairFactCount, stairX, stairY);
             }
             while (stairFactCount < userStairs)
             {
                 stairX = randomForFillArea.Next(1, cells.GetLength(1) - 1);
-                stairY = randomForFillArea.Next(ArrayForStairs[randomForFillArea.Next(0, ArrayForStairs.Length)]);
+                stairY = randomForFillArea.Next(1, cells.GetLength(0) - 1);
                 makeStair(ref stairFactCount, stairX, stairY);
             }
         }
@@ -151,77 +148,55 @@ namespace Field_Sotnikov
             {
                 this[stairY, stairX] = new Stair(stairY, stairX);
                 stairFactCount++;
-                //if (this[stairY + 1, stairX] is Empty)
-                //{
-                //    this[stairY + 1, stairX] = new Stair(stairY + 1, stairX);
-                //    stairFactCount++;
-                //}
-            }
-        }
-
-        private void fillAreaGoldBars()
-        {
-            int goldBarFactCount = 0;
-            int goldBarX;
-            int goldBarY;
-
-            while (goldBarFactCount < UserGoldBars)
-            {
-                goldBarX = randomForFillArea.Next(1, cells.GetLength(1) - 1);
-                goldBarY = randomForFillArea.Next(ArrayForNoEmpty[randomForFillArea.Next(0, ArrayForNoEmpty.Length)]);
-                if (this[goldBarY, goldBarX] is Empty)
+                if (this[stairY + 1, stairX] is Empty)
                 {
-                    this[goldBarY, goldBarX] = new GoldBar(goldBarY, goldBarX);
-                    isPlayerThere = true;
-                    goldBarFactCount++;
+                    this[stairY + 1, stairX] = new Stair(stairY + 1, stairX);
+                    stairFactCount++;
                 }
             }
+        }
+        private void fillPassableCells(int factCount, Func<int, int, Cell> createInstance)
+        {
+            int count = 0;
+            int x;
+            int y;
+
+            while (count < factCount)
+            {
+                x = randomForFillArea.Next(1, cells.GetLength(1) - 1);
+                y = randomForFillArea.Next(0, cells.GetLength(0) - 1);
+
+                if (this[y, x] is Empty)
+                {
+                    var instance = createInstance(y, x);
+                    this[y, x] = instance;
+                    count++;
+                }
+            }
+        }
+        private void fillAreaGoldBars()
+        {
+            fillPassableCells(UserGoldBars, (y, x) => new GoldBar(y, x));
         }
         private void fillAreaTeleports()
         {
-            int teleportsFactCount = 0;
-            int teleportsX;
-            int teleportsY;
-            while (teleportsFactCount < UserTeleports)
-            {
-                teleportsX = randomForFillArea.Next(1, cells.GetLength(1) - 1);
-                teleportsY = randomForFillArea.Next(ArrayForNoEmpty[randomForFillArea.Next(0, ArrayForNoEmpty.Length)]);
-                if (this[teleportsY, teleportsX] is Empty)
-                {
-                    this[teleportsY, teleportsX] = new Teleport(teleportsY, teleportsX);
-                    isPlayerThere = true;
-                    teleportsFactCount++;
-                }
-            }
+            fillPassableCells(UserTeleports, (y, x) => new Teleport(y, x));
         }
 
 
         public Cell this[int y, int x]
         {
-            get
-            {
-                if (x >= 0 && x<cells.GetLength(1) && y >= 0 && y<cells.GetLength(0))  return cells[y, x];
-                else 
-                {
-                    Console.WriteLine("Пожалуйста, введите корректные координаты\n\n");  // переделать под исключение потом
-                   return new Wall();
-                }
-
-            }
-            set {
-
-                if (x >= 0 && x < cells.GetLength(1) && y >= 0 && y < cells.GetLength(0)) cells[y, x] = value;
-            
-            }  // поставить исключение на подачу ссылки другого класса
+            get => cells[y, x];
+            set => cells[y, x] = value;
         }
 
         public void ShowArea()
         {
-            for (int i = 0; i < this.AreaHeigth; i++)
+            for (int i = 0; i < this.AreaHeight; i++)
             {
-                for (int j = 0; j < this.AreaWidth; j++) Console.Write(this[i, j].CellName);
-                Console.WriteLine("");
-
+                for (int j = 0; j < this.AreaWidth; j++)
+                    Console.Write(this[i, j].CellName);
+                Console.WriteLine();
             }
         }
     }

@@ -1,12 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Security.Cryptography.X509Certificates;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Diagnostics;
 
 namespace Field_Sotnikov
 {
@@ -14,25 +6,17 @@ namespace Field_Sotnikov
     {
         static void Main(string[] args)
         {
-            Engine game = new Engine(10, 5, 5);
+            Engine game = new Engine(25, 40);
             game.Playing();
 
-            //List<Cell>[,] cells = new List<Cell>[10, 10];
-
-            //for(int i = 0; i < cells.GetLength(0); i++)
-            //{
-            //    for(int j=0; j < cells.GetLength(1); j++)
-            //    {
-            //        cells[i, j] = new List<Cell>();
-            //    }
-            //}
-
-            //Area area = new Area();
-            //{
-            //    area.ShowArea();
-            //}
-            //Cell cell = (Cell)area[0,0].Clone();
-            //Console.WriteLine(cell.GetType());
+            // Зміни
+            // 1. Змінна для виходу з while у Playing
+            // 2. Конструктори Engine через this()
+            // 3. Переміщення та копання ями через один dictionary
+            // 4. Переміщення вверх та вниз тепер по одній клітинці, тобто гравець наступає на драбину
+            // 5. У IsMoveAble тільки відповідь
+            // 6. Непрохідні та прохідні клітинки наслідуються від відповідних класів
+            // 7. Перевірка телепорта та золота у делегаті
 
         }
     }
