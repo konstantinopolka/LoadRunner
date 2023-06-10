@@ -13,10 +13,7 @@ namespace LB3
 {
     public partial class FormRules : Form
     {
-        public FormRules()
-        {
-            InitializeComponent();
-        }
+        public FormRules() => InitializeComponent();
 
         private void richTextBox1_TextChanged(object sender, EventArgs e)
         {
