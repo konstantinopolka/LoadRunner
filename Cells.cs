@@ -3,38 +3,47 @@ using System.Drawing;
 
 namespace LB3
 {
-    abstract class Cell : ICloneable
+    abstract class Cell : ICloneable // загальний клас для усіх клітинок
     {
-        public static int Size { get => 50; }
-        public char CellName { get; protected set; }
-        public int X { get; set; }
-        public int Y { get; set; }
-        public abstract bool IsThrough { get; }
-        public virtual int PointsForCell
-        {
-            get => 0;
-        }
-        public abstract object Clone();
-
-        public abstract string LastCellComment { get; }
-        public Cell(int y = 0, int x = 0)
+        public Cell(int y = 0, int x = 0) //  загальний конструктор для усіх клітинок
         {
             CellName = ' ';
             X = x;
             Y = y;
         }
-        public abstract void Draw(Graphics graphics);
+        public static int Size { get => 50; } // розмір клітинки на моніторі
+        public int X { get; set; } // координата клітинки за віссю абсцис
+        public int Y { get; set; } // координата клітинки за віссю ординат
+
+        public abstract bool IsThrough { get; } // характеризує чи може гравець пройти через клітинку
+        public virtual int PointsForCell // кількість очок, які отримує гравець при попаданні на клітинку
+        {
+            get => 0;
+        }
+        public char CellName { get; protected set; } // ім'я клітинки
+        public abstract object Clone(); // загальний метод для побітового копіювання клітинки
+
+        public abstract string LastCellComment { get; } // коментар, який виводиться при попаданні на клітинку
+
+        public abstract void Draw(Graphics graphics); // загальний метод для малювання клітинки у формі
+
+        internal Area Area
+        {
+            get => default;
+            set
+            {
+            }
+        }
     }
 
-    abstract class Passable : Cell, ICloneable
+    abstract class Passable : Cell, ICloneable // субклас для проходимих клітинок
     {
+        public override bool IsThrough => true;
         public override void Draw(Graphics graphics)
         {
             graphics.FillRectangle(Brushes.LightGray, X * Size, Y * Size, Size, Size);
             graphics.DrawRectangle(Pens.Black, X * Size, Y * Size, Size, Size);
-
         }
-        public override bool IsThrough => true;
         public Passable(int y = 0, int x = 0)
         {
             CellName = ' ';
@@ -42,16 +51,11 @@ namespace LB3
             Y = y;
         }
     }
-
-    abstract class Unpassable : Cell, ICloneable
+    abstract class Unpassable : Cell, ICloneable // субклас для непроходимих клітинок
     {
-        public override void Draw(Graphics graphics)
-        {
-            graphics.FillRectangle(Brushes.Black, X * Size, Y * Size, Size, Size);
-            //graphics.DrawRectangle(Pens.Black, X * Size, Y * Size, Size, Size);
-
-        }
         public override bool IsThrough => false;
+        public override void Draw(Graphics graphics)
+            => graphics.FillRectangle(Brushes.Black, X * Size, Y * Size, Size, Size);
         public Unpassable(int y = 0, int x = 0)
         {
             CellName = ' ';
@@ -59,102 +63,72 @@ namespace LB3
             Y = y;
         }
     }
-    class Player : Passable, ICloneable
+    class Player : Passable, ICloneable // клас для гравця
     {
+        public Player(int y = 0, int x = 0) : base(y, x) => CellName = 'I';
+        public override string LastCellComment => "";
         public override void Draw(Graphics graphics)
         {
             graphics.FillRectangle(Brushes.Red, X * Size, Y * Size, Size, Size);
             graphics.DrawRectangle(Pens.Black, X * Size, Y * Size, Size, Size);
 
         }
-        public Player(int y = 0, int x = 0) : base(y, x)
-        {
-            CellName = 'I';
-        }
-
-
         public override object Clone() => MemberwiseClone();
-
-        public override string LastCellComment => "";
-
     }
-    class Empty : Passable, ICloneable
+    class Empty : Passable, ICloneable // клас для порожньої клітинки
     {
         public Empty(int y = 0, int x = 0) : base(y, x)
         {
 
         }
-        public override object Clone() => MemberwiseClone();
-
-
         public override string LastCellComment => "Просто пройшовся\n";
-
-    }
-    class Wall : Unpassable, ICloneable
-    {
-        public Wall(int y = 0, int x = 0) : base(y, x)
-        {
-            CellName = '#';
-        }
         public override object Clone() => MemberwiseClone();
-        public override string LastCellComment => "Стіна!\n";
     }
-    class Stair : Passable, ICloneable
+    class Wall : Unpassable, ICloneable // клас для стіни
     {
+        public Wall(int y = 0, int x = 0) : base(y, x)  => CellName = '#';
+        public override string LastCellComment => "Стіна!\n";
+        public override object Clone() => MemberwiseClone();
+       
+    }
+    class Stair : Passable, ICloneable // клас для драбини
+    {
+        public Stair(int y = 0, int x = 0) : base(y, x) => CellName = '|';
+        public override string LastCellComment => "Перейшов по драбині\n";
         public override void Draw(Graphics graphics)
         {
             graphics.FillRectangle(Brushes.SandyBrown, X * Size, Y * Size, Size, Size);
             graphics.DrawRectangle(Pens.Black, X * Size, Y * Size, Size, Size);
 
         }
-        public Stair(int y = 0, int x = 0) : base(y, x)
-        {
-            CellName = '|';
-        }
-        public override object Clone() => MemberwiseClone();
-
-        public override string LastCellComment => "Перейшов по драбині\n";
+        public override object Clone() => MemberwiseClone();  
     }
-    class GoldBar : Passable, ICloneable
+    class GoldBar : Passable, ICloneable // клас для золотого зливку
     {
+        public GoldBar(int y = 0, int x = 0) : base(y, x) => CellName = '@';
+        public override int PointsForCell => 1;
+        public override string LastCellComment => "Зібрав золотий зливок\n";
         public override void Draw(Graphics graphics)
         {
             graphics.FillRectangle(Brushes.Gold, X * Size, Y * Size, Size, Size);
             graphics.DrawRectangle(Pens.Black, X * Size, Y * Size, Size, Size);
 
         }
-        public GoldBar(int y = 0, int x = 0) : base(y, x)
-        {
-            CellName = '@';
-        }
-        public override int PointsForCell => 1;
         public override object Clone() => MemberwiseClone();
-        public override string LastCellComment => "Зібрав золотий зливок\n";
+        
     }
-    class Arrow : Passable, ICloneable
+    class Teleport : Passable, ICloneable // клас для телепорту
     {
-        public Arrow(int x = 0, int y = 0) : base(y, x)
-        {
-            CellName = ' ';
-        }
+        public Teleport(int y = 0, int x = 0) : base(y, x) => CellName = '0';
+       
+        public override string LastCellComment => "Зібрав телепорт\n";
 
-        public override object Clone() => MemberwiseClone();
-        public override string LastCellComment => " ";
-
-    }
-    class Teleport : Passable, ICloneable
-    {
         public override void Draw(Graphics graphics)
         {
             graphics.FillRectangle(Brushes.Blue, X * Size, Y * Size, Size, Size);
             graphics.DrawRectangle(Pens.Black, X * Size, Y * Size, Size, Size);
 
         }
-        public Teleport(int y = 0, int x = 0) : base(y, x)
-        {
-            CellName = '0';
-        }
         public override object Clone() => MemberwiseClone();
-        public override string LastCellComment => "Зібрав телепорт\n";
     }
 }

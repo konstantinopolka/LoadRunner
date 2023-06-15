@@ -7,42 +7,15 @@ namespace LB3
 
     class Area
     {
-        public delegate void A();
+        private Cell[,] cells;
         private int stepCount;
-        public int StepCount
-        {
-            get => stepCount;
-            set
-            {
-                if (value == stepCount + 1)
-                    stepCount = value;
-            }
-        }
-        private int userStairs; // столько, сколько хочет пользователь лестниц
+        private int userStairs;
         private int userTeleports;
-        public int UserTeleports
-        {
-            get => userTeleports;
-            set
-            {
-                if (value == userTeleports - 1)
-                    userTeleports = value;
-            }
-        }
-        public int UserGoldBars { get; } // столько, сколько хочет пользователь золотых слитков
-        private int maxStairs; // сколько всего физически может быть на карте лестниц 
-        private int maxGoldBars; // сколько всего физически может быть на карте золотых слитков
-        private int maxTeleports = 4;
+        private int maxStairs; // Cтільки драбин, скільки фізично може бути на мапі
+        private int maxGoldBars; // Cтільки золотих зливків, скільки фізично може бути на мапі
+        private int maxTeleports=1; // Cтільки телепортів, скільки фізично може бути на мапі
         private bool isPlayerThere = false;
-        public Cell[,] cells;
-
         private Random randomForFillArea = new Random();
-
-        public int AreaHeight { get; private set; }
-        public int AreaWidth { get; private set; }
-        public int PlayerX { get; set; } //  сет должно быть приват
-        public int PlayerY { get; set; } // сет должно быть приват
-
         public Area(int AreaHeight = 10, int AreaWidth = 10, int Stairs = 4, int GoldBars = 5, int Teleports = 1)
         {
             this.AreaHeight = AreaHeight;
@@ -79,6 +52,35 @@ namespace LB3
             cells = new Cell[AreaHeight, AreaWidth];
             userTeleports = 1;
             fillArea();
+        }
+        public int StepCount
+        {
+            get => stepCount;
+            set
+            {
+                if (value == stepCount + 1)
+                    stepCount = value;
+            }
+        } 
+        public int UserTeleports
+        {
+            get => userTeleports;
+            set
+            {
+                if (value == userTeleports - 1)
+                    userTeleports = value;
+            }
+        }
+        public int UserGoldBars { get; } // кількість золотих злитків, обрана користувачем
+        public int PlayerX { get; set; } //  координати гравця по віссі абсцис
+        public int PlayerY { get; set; } // //  координати гравця по віссі ординат
+        public int AreaHeight { get; private set; } // висота ігрового поля
+        public int AreaWidth { get; private set; } // ширина ігрового поля
+        public void DrawArea(Graphics graphics) // малювання ігрового поля
+        {
+            for (int i = 0; i < AreaHeight; i++)
+                for (int j = 0; j < AreaWidth; j++)
+                    this[i, j].Draw(graphics);
         }
         private void fillArea()
         {
@@ -127,7 +129,6 @@ namespace LB3
                 }
             }
         }
-
 
         private void fillAreaStairs()
         {
@@ -189,19 +190,22 @@ namespace LB3
         {
             fillPassableCells(UserTeleports, (y, x) => new Teleport(y, x));
         }
-
-
-        public Cell this[int y, int x]
+        public Cell this[int y, int x] // індексація ігрового поля
         {
-            get => cells[y, x];
+            get
+            {
+                if (y >= 0 && y < AreaHeight && x >= 0 && x <= AreaWidth) return cells[y, x];
+                else return new Wall();
+            }
             set => cells[y, x] = value;
         }
 
-        public void DrawArea(Graphics graphics)
+        internal Engine Engine
         {
-            for (int i = 0; i < AreaHeight; i++)
-                for (int j = 0; j < AreaWidth; j++)
-                    this[i, j].Draw(graphics);
+            get => default;
+            set
+            {
+            }
         }
     }
 }

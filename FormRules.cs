@@ -11,18 +11,10 @@ using static System.Windows.Forms.VisualStyles.VisualStyleElement.ToolTip;
 
 namespace LB3
 {
-    public partial class FormRules : Form
+    public partial class FormRules : Form // клас форми правил гри
     {
         public FormRules() => InitializeComponent();
-
-        private void richTextBox1_TextChanged(object sender, EventArgs e)
-        {
-
-        }
-
         private void FormRules_KeyPress(object sender, KeyPressEventArgs e) => Close();
-
-
         private void richTextBox1_KeyPress(object sender, KeyPressEventArgs e) => Close();
         
     }

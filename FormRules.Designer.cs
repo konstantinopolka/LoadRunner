@@ -1,16 +1,10 @@
 ﻿namespace LB3
 {
-    partial class FormRules
+    partial class FormRules // клас форми правил гри
     {
         /// <summary>
         /// Required designer variable.
         /// </summary>
-        private System.ComponentModel.IContainer components = null;
-
-        /// <summary>
-        /// Clean up any resources being used.
-        /// </summary>
-        /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
         protected override void Dispose(bool disposing)
         {
             if (disposing && (components != null))
@@ -19,6 +13,13 @@
             }
             base.Dispose(disposing);
         }
+        private System.ComponentModel.IContainer components = null;
+
+        /// <summary>
+        /// Clean up any resources being used.
+        /// </summary>
+        /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
+       
 
         #region Windows Form Designer generated code
 
@@ -26,24 +27,23 @@
         /// Required method for Designer support - do not modify
         /// the contents of this method with the code editor.
         /// </summary>
-        private void InitializeComponent()
+        private void InitializeComponent() 
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FormRules));
-            this.richTextBox1 = new System.Windows.Forms.RichTextBox();
+            this.BoxWithRules = new System.Windows.Forms.RichTextBox();
             this.SuspendLayout();
             // 
-            // richTextBox1
+            // BoxWithRules
             // 
-            this.richTextBox1.BackColor = System.Drawing.SystemColors.Window;
-            this.richTextBox1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.richTextBox1.Font = new System.Drawing.Font("Microsoft Sans Serif", 40F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.richTextBox1.Location = new System.Drawing.Point(0, 0);
-            this.richTextBox1.Name = "richTextBox1";
-            this.richTextBox1.Size = new System.Drawing.Size(1264, 681);
-            this.richTextBox1.TabIndex = 0;
-            this.richTextBox1.Text = resources.GetString("richTextBox1.Text");
-            this.richTextBox1.TextChanged += new System.EventHandler(this.richTextBox1_TextChanged);
-            this.richTextBox1.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.richTextBox1_KeyPress);
+            this.BoxWithRules.BackColor = System.Drawing.SystemColors.Window;
+            this.BoxWithRules.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.BoxWithRules.Font = new System.Drawing.Font("Microsoft Sans Serif", 40F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.BoxWithRules.Location = new System.Drawing.Point(0, 0);
+            this.BoxWithRules.Name = "BoxWithRules";
+            this.BoxWithRules.Size = new System.Drawing.Size(1264, 681);
+            this.BoxWithRules.TabIndex = 0;
+            this.BoxWithRules.Text = resources.GetString("BoxWithRules.Text");
+            this.BoxWithRules.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.richTextBox1_KeyPress);
             // 
             // FormRules
             // 
@@ -51,7 +51,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.ActiveBorder;
             this.ClientSize = new System.Drawing.Size(1264, 681);
-            this.Controls.Add(this.richTextBox1);
+            this.Controls.Add(this.BoxWithRules);
             this.Name = "FormRules";
             this.Text = "MainForm";
             this.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.FormRules_KeyPress);
@@ -61,6 +61,6 @@
 
         #endregion
 
-        private System.Windows.Forms.RichTextBox richTextBox1;
+        private System.Windows.Forms.RichTextBox BoxWithRules;
     }
 }

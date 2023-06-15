@@ -8,39 +8,26 @@ using System.Windows.Forms;
 namespace LB3
 {
     //delegate void delegateFor2Ints(int y, int x);
-    class Engine
+    class Engine // клас виконовання ігрової логіки
     {
-        private bool isThereThePit;
-        private bool isLastActionPossible = false;
-        
         private int points;
         private int teleports;
-        public int AreaHeigth { get; private set; } 
-        public int AreaWidth { get; private set; }
-        private char actionChar { get; set; }
-
-        private delegateFor2Ints checkOfNextCell;
-        private Dictionary<char, Tuple<int, int>> dicMoves;
-        private List<string> lastActionComments;
-        public List<string> statistics { 
-            get {
-                return new List<string>
-                    {
-                    $"Points:\t\t{points}",
-                    $"Teleports:\t\t{teleports}",
-                    $"Steps count:\t\t{area.StepCount}",
-                    $"Time:\t\t{stopwatch.Elapsed}"
-                    };
-            } 
-        }
+        private bool isThereThePit;
+        private bool isLastActionPossible = false;
+        private char actionChar;
 
         private Area area;
         private Cell lastPit;
         private Cell lastCell;
 
+        private delegateFor2Ints checkOfNextCell;
+        private Dictionary<char, Tuple<int, int>> dicMoves;
+        private List<string> lastActionComments;
         private Stopwatch stopwatch;
-
-        public Engine(int AreaHeigth = 10, int AreaWidth = 10, int MaxStairs = 4, int MaxGoldBars = 5, int Teleports = 1)
+        
+        public Engine(
+            int AreaHeigth = 10, int AreaWidth = 10, int MaxStairs = 4, int MaxGoldBars = 5, int Teleports = 1
+                ) // загальний конструктор для класу
         {
             this.AreaHeigth = AreaHeigth;
             this.AreaWidth = AreaWidth;
@@ -61,7 +48,8 @@ namespace LB3
             lastActionCommentsInitialization();
            
         }
-        public Engine(int n = 10, int MaxStairs = 4, int MaxGoldBars = 5, int Teleports = 1) : this(n, n, MaxStairs, MaxGoldBars, Teleports)
+        public Engine(int n = 10, int MaxStairs = 4, int MaxGoldBars = 5, int Teleports = 1)
+            : this(n, n, MaxStairs, MaxGoldBars, Teleports)
         {
 
         }
@@ -73,11 +61,136 @@ namespace LB3
         {
 
         }
-        public Engine(int AreaHeigth = 10, int AreaWidth = 10) : this(AreaHeigth, AreaWidth, AreaHeigth, AreaHeigth, AreaHeigth / 10)
+        public Engine(
+            int AreaHeigth = 10, int AreaWidth = 10) : this(AreaHeigth, AreaWidth, AreaHeigth, AreaHeigth, AreaHeigth / 10
+                )
         {
 
         }
+        public List<string> statistics // список статистики гри для її малювання
+        {
+            get
+            {
+                return new List<string>
+                    {
+                    $"Points:\t\t{points}",
+                    $"Teleports:\t\t{teleports}",
+                    $"Steps count:\t\t{area.StepCount}",
+                    $"Time:\t\t{stopwatch.Elapsed}"
+                    };
+            }
+        }
+        public int AreaHeigth { get; private set; } // висота ігрового поля
+        public int AreaWidth { get; private set; } // ширина ігрового поля
 
+        public MainForm MainForm
+        {
+            get => default;
+            set
+            {
+            }
+        }
+
+        public void DrawGame(Graphics graphics) // малювання гри з статистикою
+        {
+            area.DrawArea(graphics);
+            showStatistics(graphics);
+            showLastActionComments(graphics);
+        }
+        public void HandleKeyPress(Keys keyCode, ref bool isPlaying) // оброблення натиску кнопки під час ігрового процесу
+        {
+            actionChar = (char)keyCode;
+
+            stopwatch.Start();
+            if (actionChar == 'W' || actionChar == 'A' || actionChar == 'D' || actionChar == 'S' || actionChar == ' ')
+            {
+                if (actionChar == 'W' || actionChar == 'A' || actionChar == 'D' || actionChar == 'S')
+                {
+                    lastActionComments.Add(
+                        area[area.PlayerY + dicMoves[actionChar].Item1, area.PlayerX + dicMoves[actionChar].Item2].LastCellComment
+                        );
+
+                    if (isMoveAble(actionChar, area.PlayerY + dicMoves[actionChar].Item1, area.PlayerX + dicMoves[actionChar].Item2))
+                    {
+                        isLastActionPossible = true;
+                        area.StepCount++;
+
+                        if (lastCell is Stair)
+                            area[area.PlayerY, area.PlayerX] = lastCell;
+                        else
+                            area[area.PlayerY, area.PlayerX] = new Empty(area.PlayerY, area.PlayerX);
+
+                        area.PlayerX += dicMoves[actionChar].Item2;
+                        area.PlayerY += dicMoves[actionChar].Item1;
+
+                        checkOfNextCell(area.PlayerY, area.PlayerX);
+
+                        lastCell = (Cell)area[area.PlayerY, area.PlayerX].Clone();
+
+                    }
+                    else
+                        isLastActionPossible = false;
+                }
+                if (actionChar == ' ')
+                {
+                    if (teleports > 0)
+                    {
+                        lastActionComments.Add("Телепортнувся\n");
+                        isLastActionPossible = true;
+                        teleport();
+                    }
+                    else
+                        lastActionComments.Add("У тебя немає телепорті\n");
+                }
+
+                while (area[area.PlayerY + 1, area.PlayerX] is Passable &&
+                       !(area[area.PlayerY + 1, area.PlayerX] is Stair) &&
+                       area.PlayerY + 1 != area.AreaHeight &&
+                       !(lastCell is Stair)
+                       )
+                {
+                    area.PlayerY++;
+                    lastActionComments.Add(area[area.PlayerY, area.PlayerX].LastCellComment);
+                    checkOfNextCell(area.PlayerY, area.PlayerX);
+                }
+
+                if (isThereThePit && isLastActionPossible)
+                {
+                    area[lastPit.Y, lastPit.X] = new Wall(lastPit.Y, lastPit.X);
+                    isThereThePit = false;
+                }
+            }
+            if ((actionChar == 'Z' || actionChar == 'X') &&
+                isPitAble(actionChar, area.PlayerY + dicMoves[actionChar].Item1, area.PlayerX + dicMoves[actionChar].Item2))
+            {
+                lastActionComments.Add("Зробив яму\n");
+                if (isThereThePit)
+                    area[lastPit.Y, lastPit.X] = new Wall(lastPit.Y, lastPit.X);
+
+                isThereThePit = true;
+                area[area.PlayerY + dicMoves[actionChar].Item1, area.PlayerX + dicMoves[actionChar].Item2] = new Empty(
+                     area.PlayerY + dicMoves[actionChar].Item1, area.PlayerX + dicMoves[actionChar].Item2
+                     );
+                area.StepCount++;
+                lastPit = new Empty(area.PlayerY + dicMoves[actionChar].Item1, area.PlayerX + dicMoves[actionChar].Item2);
+                isLastActionPossible = true;
+            }
+            else
+                isLastActionPossible = false;
+
+            area[area.PlayerY, area.PlayerX] = new Player(area.PlayerY, area.PlayerX);
+
+            IsWin(ref isPlaying);
+            IsLose(ref isPlaying);
+        }
+        private void IsWin(ref bool isPlaying)
+        {
+            if (area.UserGoldBars == points)
+            {
+                isPlaying = false;
+                Win();
+            }
+        }
         private void showStatistics(Graphics graphics)
         {
             List<string> Statistics = this.statistics;
@@ -148,107 +261,12 @@ namespace LB3
             if (area[y, x] is Teleport)
                 teleports++;
         }
-        public void DrawGame(Graphics graphics)
-        {
-
-            area.DrawArea(graphics);
-            showStatistics(graphics);
-            showLastActionComments(graphics);
-        }
         private void lastActionCommentsInitialization()
         {
             lastActionComments = new List<string>();
             lastActionComments.Add("Тут будуть коментарії твого останнього кроку\n");
         }
-        public void HandleKeyPress(Keys keyCode, ref bool isPlaying)
-        {
-            actionChar = (char)keyCode;
 
-            stopwatch.Start();
-            if (actionChar == 'W' || actionChar == 'A' || actionChar == 'D' || actionChar == 'S' || actionChar == ' ')
-            {
-                if (actionChar == 'W' || actionChar == 'A' || actionChar == 'D' || actionChar == 'S')
-                {
-                    lastActionComments.Add(area[area.PlayerY + dicMoves[actionChar].Item1, area.PlayerX + dicMoves[actionChar].Item2].LastCellComment);
-
-                    if (isMoveAble(actionChar, area.PlayerY + dicMoves[actionChar].Item1, area.PlayerX + dicMoves[actionChar].Item2))
-                    {
-                        isLastActionPossible = true;
-                        area.StepCount++;
-
-                        if (lastCell is Stair)
-                            area[area.PlayerY, area.PlayerX] = lastCell;
-                        else
-                            area[area.PlayerY, area.PlayerX] = new Empty(area.PlayerY, area.PlayerX);
-
-                        area.PlayerX += dicMoves[actionChar].Item2;
-                        area.PlayerY += dicMoves[actionChar].Item1;
-
-                        checkOfNextCell(area.PlayerY, area.PlayerX);
-
-                        lastCell = (Cell)area[area.PlayerY, area.PlayerX].Clone();
-
-                    }
-                    else
-                        isLastActionPossible = false;
-                }
-                if (actionChar == ' ')
-                {
-                    if (teleports > 0)
-                    {
-                        lastActionComments.Add("Телепортнувся\n");
-                        isLastActionPossible = true;
-                        teleport();
-                    }
-                    else
-                        lastActionComments.Add("У тебя немає телепорті\n");
-                }
-
-                while (area[area.PlayerY + 1, area.PlayerX] is Passable &&
-                       !(area[area.PlayerY + 1, area.PlayerX] is Stair) &&
-                       area.PlayerY + 1 != area.AreaHeight &&
-                       !(lastCell is Stair)
-                       )
-                {
-                    area.PlayerY++;
-                    lastActionComments.Add(area[area.PlayerY, area.PlayerX].LastCellComment);
-                    checkOfNextCell(area.PlayerY, area.PlayerX);
-                }
-
-                if (isThereThePit && isLastActionPossible)
-                {
-                    area[lastPit.Y, lastPit.X] = new Wall(lastPit.Y, lastPit.X);
-                    isThereThePit = false;
-                }
-            }
-            if ((actionChar == 'Z' || actionChar == 'X') &&
-                isPitAble(actionChar, area.PlayerY + dicMoves[actionChar].Item1, area.PlayerX + dicMoves[actionChar].Item2))
-            {
-                lastActionComments.Add("Зробив яму\n");
-                if (isThereThePit)
-                    area[lastPit.Y, lastPit.X] = new Wall(lastPit.Y, lastPit.X);
-
-                isThereThePit = true;
-                area[area.PlayerY + dicMoves[actionChar].Item1, area.PlayerX + dicMoves[actionChar].Item2] = new Empty(area.PlayerY + dicMoves[actionChar].Item1, area.PlayerX + dicMoves[actionChar].Item2);
-                area.StepCount++;
-                lastPit = new Empty(area.PlayerY + dicMoves[actionChar].Item1, area.PlayerX + dicMoves[actionChar].Item2);
-                isLastActionPossible = true;
-            }
-            else
-                isLastActionPossible = false;
-
-            area[area.PlayerY, area.PlayerX] = new Player(area.PlayerY, area.PlayerX);
-
-            IsWin(ref isPlaying);
-            IsLose(ref isPlaying);
-        }
-        private void IsWin(ref bool isPlaying)
-        {
-            if (area.UserGoldBars == points) {
-                isPlaying = false;
-                Win();
-            }
-        }
         private void Win() { }
        
         private void IsLose(ref bool isPlaying)
@@ -260,6 +278,6 @@ namespace LB3
             }
         }
         private void Lose() { }
-        
+        delegate void delegateFor2Ints(int y, int x);
     }
 }

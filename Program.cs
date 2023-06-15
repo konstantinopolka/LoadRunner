@@ -4,8 +4,7 @@ using System.Windows.Forms;
 
 namespace LB3
 {
-    // Головний клас програми
-    public static class Program
+    public static class Program // Головний клас програми
     {
         [STAThread]
         static void Main()

@@ -6,9 +6,8 @@ using System.Windows.Forms;
 
 namespace LB3
 {
-    delegate void delegateFor2Ints(int y, int x);
 
-    public partial class MainForm : Form
+    public partial class MainForm : Form // клас головної форми гри
     {
         private Engine engine;
         private Timer gameTimer;
@@ -16,55 +15,47 @@ namespace LB3
         private Button buttonRules;
         private Button buttonExit;
         private bool isPlaying;
-        public MainForm()
+        public MainForm() // конструктор головної форми гри
         {
             InitializeComponent();
             InitializeGame();
-            
         }
-        
+
+        public FormRules FormRules
+        {
+            get => default;
+            set
+            {
+            }
+        }
+
         private void InitializeGame()
         {
-            engine = new Engine(11, 20, 15, 5, 1 );
+            engine = new Engine(10, 10, 10, 5, 1 );
             gameTimer = new Timer();
             gameTimer.Interval = 1000 / 60; // 60 FPS
             gameTimer.Tick += GameTimer_Tick;
         }
-
-        private void MainForm_Load(object sender, EventArgs e)
-        {
-            
-            
-        }
-
         private void MainForm_KeyDown(object sender, KeyEventArgs e)
         {
-           
+
             if (isPlaying) engine.HandleKeyPress(e.KeyCode, ref isPlaying);
-                else
-                {
-                    this.Controls.Add(buttonStart);
-                    this.Controls.Add(buttonRules);
-                    this.Controls.Add(buttonExit);
-                    this.KeyDown -= MainForm_KeyDown;
-                    this.Paint -= MainForm_Paint;
-                }
-                Refresh();
-        }
-
-        private void MainForm_Paint(object sender, PaintEventArgs e)
-        {
-            engine.DrawGame(e.Graphics);
-        }
-
-        private void GameTimer_Tick(object sender, EventArgs e)
-        {
+            else
+                inMenu();
             Refresh();
         }
+        private void inMenu()
+        {
+            this.Controls.Add(buttonStart);
+            this.Controls.Add(buttonRules);
+            this.Controls.Add(buttonExit);
+            this.KeyDown -= MainForm_KeyDown;
+            this.Paint -= MainForm_Paint;
+            Refresh();
+        }
+        private void MainForm_Paint(object sender, PaintEventArgs e) => engine.DrawGame(e.Graphics);
 
-       
-
-
+        private void GameTimer_Tick(object sender, EventArgs e) => Refresh();
         private void InitializeComponent()
         {
             this.buttonStart = new System.Windows.Forms.Button();
@@ -123,11 +114,13 @@ namespace LB3
             this.PerformLayout();
 
         }
-
         private void MainForm_KeyPress(object sender, KeyPressEventArgs e)
         {
             if (e.KeyChar == (char)Keys.Escape)
-                Close();
+            {
+                if (isPlaying) inMenu();
+                else Close();
+            }   
         }
 
         private void buttonStart_Click(object sender, EventArgs e)
@@ -141,7 +134,6 @@ namespace LB3
             isPlaying = true;
             Refresh();
         }
-
         private void buttonExit_Click(object sender, EventArgs e) => Close();
 
         private void buttonRules_Click(object sender, EventArgs e)
@@ -149,5 +141,6 @@ namespace LB3
             FormRules rulesForm = new FormRules();
             rulesForm.Show();
         }
+       
     }
 }
